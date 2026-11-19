@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#171923">
+<title>Color Mixer — Atelier acrylique</title>
+<style>
+:root{--bg:#f4f2ee;--card:#fff;--ink:#20212a;--muted:#777986;--line:#e8e5df;--accent:#6654d9;--soft:#eeeaff;--shadow:0 8px 26px #28223a12}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+header{background:#171923;color:white;padding:25px 20px 22px;border-radius:0 0 24px 24px}
+.headrow{display:flex;align-items:center;gap:12px}.logo{width:43px;height:43px;border-radius:14px;background:linear-gradient(135deg,#00bceB 0 25%,#e6007e 25% 50%,#ffdf00 50% 75%,#fff 75%);box-shadow:inset 0 0 0 1px #ffffff44}
+h1{font-size:22px;margin:0;font-weight:800;letter-spacing:-.5px}header p{color:#c5c5d0;margin:8px 0 0;font-size:13px}
+main{max-width:720px;margin:auto;padding:16px 14px 40px}.tabs{display:grid;grid-template-columns:1fr 1fr;gap:7px;background:#e8e5df;padding:5px;border-radius:14px;margin-bottom:14px}
+.tab{border:0;background:transparent;padding:11px 8px;border-radius:10px;font-weight:700;color:#686875}.tab.active{background:white;color:var(--ink);box-shadow:0 2px 8px #0000000c}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:19px;padding:16px;margin-bottom:13px;box-shadow:var(--shadow)}
+h2{font-size:17px;margin:0 0 12px;letter-spacing:-.2px}.sub{color:var(--muted);font-size:12px;margin:-6px 0 13px}
+label{display:block;font-weight:700;font-size:13px;margin:12px 0 6px}
+input[type=text]{width:100%;border:1px solid var(--line);border-radius:11px;padding:12px;font:inherit;color:var(--ink);background:#fff}
+input[type=color]{width:100%;height:52px;border:0;padding:0;background:transparent;border-radius:10px;overflow:hidden}
+.colorrow{display:grid;grid-template-columns:62px 1fr;gap:10px;align-items:center}
+.swatch{height:72px;border-radius:14px;border:1px solid #00000012;display:flex;align-items:end;padding:9px;color:white;text-shadow:0 1px 4px #0008;font-weight:800;font-size:12px}
+.presets{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.preset{border:1px solid var(--line);background:white;border-radius:11px;padding:6px;font-size:11px;font-weight:650;color:var(--ink)}
+.preset i{display:block;height:30px;border-radius:7px;margin-bottom:5px}
+.palette{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.paint{border:1px solid var(--line);border-radius:12px;padding:7px 3px;text-align:center;background:white;font-size:11px;font-weight:700}
+.paint b{display:block;height:29px;border-radius:7px;margin-bottom:5px}
+.rangeLine{display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:700;margin-top:12px}
+input[type=range]{width:100%;accent-color:var(--accent);margin:10px 0}
+.recipe{display:grid;gap:9px}
+.ingredient{display:grid;grid-template-columns:14px 1fr auto;gap:9px;align-items:center;font-size:13px}
+.dot{width:14px;height:14px;border-radius:5px}
+.amount{font-weight:800;font-variant-numeric:tabular-nums}
+.bar{height:8px;background:#f0eef0;border-radius:99px;overflow:hidden;margin-top:4px}.bar span{display:block;height:100%;border-radius:99px}
+.note{background:#f7f5ff;border:1px solid #e9e4ff;border-radius:12px;padding:11px 12px;font-size:12px;color:#514b70;margin-top:13px}
+button.primary{width:100%;border:0;border-radius:12px;background:var(--accent);color:white;padding:13px;font:700 14px inherit;margin-top:13px}
+button.secondary{border:1px solid var(--line);border-radius:10px;background:white;padding:10px 12px;font-weight:700;color:var(--ink)}
+.resultgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.resultgrid .swatch{height:85px}
+.hidden{display:none!important}.tip{font-size:12px;color:var(--muted);margin:10px 0 0}.pill{display:inline-block;background:var(--soft);color:#5949bd;padding:4px 8px;border-radius:99px;font-size:11px;font-weight:800}
+footer{text-align:center;color:var(--muted);font-size:11px;padding:5px 18px 25px}
+@media(min-width:600px){main{padding-top:22px}.presets{grid-template-columns:repeat(6,1fr)}}
+</style>
+</head>
+<body>
+<header>
+ <div class="headrow"><div class="logo"></div><div><h1>Color Mixer</h1><div style="font-size:12px;color:#b9b8c7">Ton petit atelier de peinture acrylique</div></div></div>
+ <p>Trouve une couleur, prépare une première recette et ajuste ton mélange pas à pas.</p>
+</header>
+<main>
+ <div class="tabs">
+  <button class="tab active" id="tabRecipe" onclick="showMode('recipe')">🎨 Créer une couleur</button>
+  <button class="tab" id="tabFix" onclick="showMode('fix')">🛠️ Corriger mon mélange</button>
+ </div>
+
+ <section id="recipeMode">
+  <div class="panel">
+   <h2>1. Choisis ta couleur cible</h2>
+   <p class="sub">Utilise le sélecteur ou choisis une inspiration.</p>
+   <div class="colorrow"><input type="color" id="targetPicker" value="#ff6655" aria-label="Choisir la couleur cible"><input type="text" id="targetHex" value="#FF6655" maxlength="7" aria-label="Code hexadécimal"></div>
+   <div class="swatch" id="targetSwatch" style="background:#ff6655;margin-top:9px">COULEUR CIBLE</div>
+   <label>Quelques couleurs pour commencer</label>
+   <div class="presets" id="presets"></div>
+  </div>
+  <div class="panel">
+   <h2>2. Ta palette disponible</h2>
+   <p class="sub">L'application utilise uniquement ces cinq peintures.</p>
+   <div class="palette">
+    <div class="paint"><b style="background:#00bceB"></b>Cyan</div>
+    <div class="paint"><b style="background:#e6007e"></b>Magenta</div>
+    <div class="paint"><b style="background:#ffdf00"></b>Jaune</div>
+    <div class="paint"><b style="background:#fff;border:1px solid #ddd"></b>Blanc</div>
+    <div class="paint"><b style="background:#171717"></b>Noir</div>
+   </div>
+   <div class="rangeLine"><span>Quantité totale souhaitée</span><strong><span id="qtyLabel">10</span> parts</strong></div>
+   <input type="range" id="qty" min="5" max="30" value="10">
+  </div>
+  <div class="panel">
+   <h2>3. Première recette estimée</h2>
+   <p class="sub">Une base de départ à tester sur une petite quantité.</p>
+   <div id="recipe" class="recipe"></div>
+   <div class="note" id="recipeNote">Les proportions sont indicatives : les pigments réels ne se comportent pas comme des pixels. Ajoute toujours les couleurs foncées progressivement.</div>
+   <button class="primary" onclick="copyRecipe()">Copier la recette</button>
+  </div>
+ </section>
+
+ <section id="fixMode" class="hidden">
+  <div class="panel">
+   <h2>Corrige la couleur que tu as obtenue</h2>
+   <p class="sub">Indique ta couleur actuelle et la couleur que tu voulais obtenir.</p>
+   <label>Ma couleur actuelle</label>
+   <div class="colorrow"><input type="color" id="currentPicker" value="#c96b58"><input type="text" id="currentHex" value="#C96B58" maxlength="7"></div>
+   <label>Ma couleur cible</label>
+   <div class="colorrow"><input type="color" id="fixTargetPicker" value="#ff6655"><input type="text" id="fixTargetHex" value="#FF6655" maxlength="7"></div>
+   <div class="resultgrid" style="margin-top:12px">
+    <div><div class="swatch" id="currentSwatch" style="background:#c96b58">ACTUELLE</div></div>
+    <div><div class="swatch" id="fixSwatch" style="background:#ff6655">CIBLE</div></div>
+   </div>
+  </div>
+  <div class="panel">
+   <h2>Que dois-je ajouter ?</h2>
+   <div id="fixAdvice"></div>
+   <div class="note">Conseil d'atelier : ajoute une toute petite pointe de peinture à la fois, mélange complètement, puis compare à nouveau. Le blanc éclaircit mais rend souvent la couleur moins vive ; le noir peut vite salir un mélange.</div>
+  </div>
+ </section>
+</main>
+<footer>Color Mixer • Outil pédagogique non-laboratoire • Les recettes dépendent fortement de la marque et du pigment.</footer>
+<script>
+const $=id=>document.getElementById(id);
+const presets=[['Rouge vif','#ed2525'],['Orange','#ff7900'],['Jaune soleil','#ffdf00'],['Vert vif','#35d447'],['Turquoise','#00d5c5'],['Bleu vif','#174bff'],['Violet','#9228d8'],['Fuchsia','#ff24a8'],['Corail','#ff6655'],['Rose pâle','#f5a8c8'],['Marron','#84452c'],['Gris','#858585']];
+const paints=[['Cyan','#00bceb'],['Magenta','#e6007e'],['Jaune','#ffdf00'],['Blanc','#ffffff'],['Noir','#171717']];
+let lastRecipe=[];
+function validHex(s){return /^#[0-9a-fA-F]{6}$/.test(s)}
+function rgb(h){return [1,3,5].map(i=>parseInt(h.slice(i,i+2),16))}
+function hex(a){return '#'+a.map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0')).join('')}
+function syncColor(picker,text,swatch){let h=$(picker).value;$(text).value=h.toUpperCase();if(swatch)$(swatch).style.background=h}
+function bindPair(picker,text,swatch,callback){$(picker).addEventListener('input',()=>{syncColor(picker,text,swatch);callback&&callback()});$(text).addEventListener('input',()=>{let v=$(text).value;if(validHex(v)){$(picker).value=v; if(swatch)$(swatch).style.background=v;callback&&callback()}})}
+function showMode(mode){$('recipeMode').classList.toggle('hidden',mode!=='recipe');$('fixMode').classList.toggle('hidden',mode!=='fix');$('tabRecipe').classList.toggle('active',mode==='recipe');$('tabFix').classList.toggle('active',mode==='fix');if(mode==='fix')updateFix()}
+function buildPresets(){ $('presets').innerHTML=presets.map(([n,c])=>`<button class="preset" onclick="setTarget('${c}')"><i style="background:${c}"></i>${n}</button>`).join('')}
+function setTarget(c){$('targetPicker').value=c;$('targetHex').value=c.toUpperCase();updateRecipe()}
+function updateRecipe(){
+ let h=$('targetHex').value;if(!validHex(h))return;
+ $('targetPicker').value=h;$('targetSwatch').style.background=h;
+ $('qtyLabel').textContent=$('qty').value;
+ const [r,g,b]=rgb(h).map(v=>v/255);
+ // Approximate subtractive CMY decomposition plus black. This is a digital starting point, not a physical pigment model.
+ const k=1-Math.max(r,g,b), d=1-k;
+ let c=d?((1-r-k)/d):0, m=d?((1-g-k)/d):0, y=d?((1-b-k)/d):0;
+ // Convert normalized components into a practical recipe; keep a small base for chromatic targets.
+ let vals=[c,m,y,k].map(v=>Math.max(0,v));
+ const sum=vals.reduce((a,v)=>a+v,0)||1, qty=Number($('qty').value);
+ let names=[['Cyan','#00bceb'],['Magenta','#e6007e'],['Jaune','#ffdf00'],['Noir','#171717']];
+ lastRecipe=vals.map((v,i)=>({name:names[i][0],color:names[i][1],parts:v/sum*qty,pct:v/sum*100})).filter(x=>x.parts>=.08);
+ if(Math.max(r,g,b)-Math.min(r,g,b)<.08){lastRecipe=[{name:'Blanc',color:'#fff',parts:qty*(1-k),pct:(1-k)*100},{name:'Noir',color:'#171717',parts:qty*k,pct:k*100}].filter(x=>x.parts>=.08)}
+ $('recipe').innerHTML=lastRecipe.length?lastRecipe.map(x=>`<div class="ingredient"><span class="dot" style="background:${x.color};border:1px solid #0002"></span><div><strong>${x.name}</strong><div class="bar"><span style="width:${x.pct}%;background:${x.color}"></span></div></div><span class="amount">${x.parts.toFixed(1)} parts</span></div>`).join(''):'<p>Cette couleur est très proche du blanc. Pars du blanc et ajoute une pointe de couleur à la fois.</p>';
+}
+function copyRecipe(){let t='Couleur cible : '+$('targetHex').value.toUpperCase()+'\nRecette estimative :\n'+lastRecipe.map(x=>`${x.name} : ${x.parts.toFixed(1)} parts`).join('\n')+'\nÀ ajuster selon les pigments.';if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(()=>alert('Recette copiée !')).catch(()=>prompt('Copie ta recette :',t))}else prompt('Copie ta recette :',t)}
+function updateFix(){
+ let a=$('currentHex').value,b=$('fixTargetHex').value;if(!validHex(a)||!validHex(b))return;
+ $('currentPicker').value=a;$('fixTargetPicker').value=b;$('currentSwatch').style.background=a;$('fixSwatch').style.background=b;
+ let A=rgb(a),B=rgb(b),delta=B.map((v,i)=>v-A[i]);
+ let luminance=x=>.2126*x[0]+.7152*x[1]+.0722*x[2];
+ let advice=[];
+ let names=['rouge','vert','bleu'];
+ let max=Math.max(...delta.map(Math.abs));
+ if(max<12){advice.push('Ton mélange est déjà très proche de la cible. Fais seulement de minuscules ajustements si nécessaire.')}
+ else{
+  let brighter=luminance(B)>luminance(A)+8;
+  let darker=luminance(B)<luminance(A)-8;
+  if(brighter) advice.push('La cible est plus claire : ajoute un peu de blanc, progressivement.');
+  if(darker) advice.push('La cible est plus foncée : ajoute une pointe de noir, ou renforce la couleur dominante sans noircir trop vite.');
+  let high=delta.indexOf(Math.max(...delta)),low=delta.indexOf(Math.min(...delta));
+  if(Math.max(...delta)>14 && Math.min(...delta)<-14){
+   const suggestions=[
+    ['Ajoute une petite pointe de magenta (cela renforce le rouge et réduit la dominante cyan).','Ajoute une pointe de cyan pour calmer le rouge.'],
+    ['Ajoute une petite pointe de jaune (cela renforce le vert).','Ajoute une pointe de magenta pour réduire le vert.'],
+    ['Ajoute une petite pointe de cyan (cela renforce le bleu).','Ajoute une pointe de jaune pour réduire le bleu.']
+   ];
+   advice.push(suggestions[high][0]);advice.push(suggestions[low][1]);
+  }else if(Math.max(...delta)>14){
+   let map=['magenta ou une pointe de jaune','jaune','cyan'];
+   advice.push('La cible contient davantage de '+names[high]+' : essaie une très petite pointe de '+map[high]+'.');
+  }else if(Math.min(...delta)<-14){
+   let map=['cyan','magenta','jaune'];
+   advice.push('La cible contient moins de '+names[low]+' : essaie une pointe de '+map[low]+' pour rééquilibrer.');
+  }
+ }
+ $('fixAdvice').innerHTML='<ul style="padding-left:20px;margin:0">'+advice.map(x=>`<li style="margin:8px 0">${x}</li>`).join('')+'</ul><p class="tip">Ces conseils comparent les couleurs à l'écran. Ils donnent une direction de correction, pas une quantité exacte de peinture.</p>';
+}
+buildPresets();
+bindPair('targetPicker','targetHex','targetSwatch',updateRecipe);
+$('qty').addEventListener('input',updateRecipe);
+bindPair('currentPicker','currentHex','currentSwatch',updateFix);
+bindPair('fixTargetPicker','fixTargetHex','fixSwatch',updateFix);
+bindPair('targetPicker','targetHex','targetSwatch',updateRecipe);
+updateRecipe();updateFix();
+</script>
+</body>
+</html>
